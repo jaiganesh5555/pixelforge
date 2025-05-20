@@ -1,0 +1,17 @@
+FROM oven/bun:1
+
+ARG CLERK_PUBLISHABLE_KEY
+
+WORKDIR /usr/src/app
+
+COPY . .
+
+RUN bun install
+
+RUN NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_live_Y2xlcmsuMTAweGRldnMuY29tJA NEXT_PUBLIC_BACKEND_URL=https://api.photoaiv2.100xdevs.com bunx turbo build --filter=web...
+
+ENV NODE_ENV production
+
+EXPOSE 3000
+
+CMD ["bun", "start:web"]
