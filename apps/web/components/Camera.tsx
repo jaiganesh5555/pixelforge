@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import Image from "next/image";
+import ClientOnly from "./ClientOnly";
 
 export interface TImage {
   id: string;
@@ -37,6 +38,10 @@ export function Camera() {
   const [error, setError] = useState<string | null>(null);
 
   const formatDate = (dateString: string) => {
+    if (typeof window === 'undefined') {
+      return dateString;
+    }
+    
     return new Date(dateString).toLocaleString("en-US", {
       year: "numeric",
       month: "long",
@@ -94,15 +99,8 @@ export function Camera() {
       if (!response.ok) {
         throw new Error(`Failed to download image: ${response.statusText}`);
       }
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${imageName}.png`;
-      document.body.appendChild(a);
-      a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
+      
+      await ClientDownloadImage(response, imageName);
     } catch (error) {
       console.error("Error downloading image:", error);
       setError(error instanceof Error ? error.message : "Failed to download image");
@@ -215,7 +213,9 @@ export function Camera() {
                 <p className="text-lg font-medium truncate">
                   {selectedImage?.prompt}
                 </p>
-                <p className="text-sm">{formatDate(selectedImage.createdAt)}</p>
+                <ClientOnly>
+                  <p className="text-sm">{formatDate(selectedImage.createdAt)}</p>
+                </ClientOnly>
               </div>
 
               <div className="relative aspect-square w-full">
@@ -284,4 +284,29 @@ export function Camera() {
       )}
     </div>
   );
+}
+
+async function ClientDownloadImage(response: Response, imageName: string) {
+  return new Promise<void>(async (resolve, reject) => {
+    try {
+      const blob = await response.blob();
+      
+      if (typeof window === 'undefined') {
+        resolve();
+        return;
+      }
+      
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${imageName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      resolve();
+    } catch (error) {
+      reject(error);
+    }
+  });
 }

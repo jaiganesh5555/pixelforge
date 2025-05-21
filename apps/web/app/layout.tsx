@@ -5,6 +5,7 @@ import { Appbar } from "@/components/Appbar";
 import { Providers } from "@/components/providers/Providers";
 import { Footer } from "@/components/Footer";
 import Script from "next/script";
+import { SafeHydrationProvider } from "@/components/SafeHydrationProvider";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,11 +41,13 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} min-h-screen bg-background font-sans antialiased`}
       >
         <Providers>
-          <div className="relative flex min-h-screen flex-col">
-            <Appbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <SafeHydrationProvider>
+            <div className="relative flex min-h-screen flex-col">
+              <Appbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </SafeHydrationProvider>
         </Providers>
       </body>
     </html>

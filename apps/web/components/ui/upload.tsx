@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { BACKEND_URL, CLOUDFLARE_URL } from "@/app/config";
 import { cn } from "@/lib/utils";
+import ClientOnly from "@/components/ClientOnly";
 
 export function UploadModal({
   handleUpload,
@@ -39,6 +40,11 @@ export function UploadModal({
     const files = Array.from(e.dataTransfer.files);
     if (files.length) await handleUpload(files);
   }, []);
+
+  const handleFileSelect = () => {
+    // This function doesn't need document object during initial render
+    createAndClickFileInput(handleUpload);
+  };
 
   return (
     <Card className="w-full rounded-none border-none mx-auto shadow-none">
@@ -78,23 +84,15 @@ export function UploadModal({
               <p className="text-neutral-500">
                 <span className="font-medium">Drag and drop files here</span> or
               </p>
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={() => {
-                  const input = document.createElement("input");
-                  input.type = "file";
-                  input.accept = "image/*";
-                  input.multiple = true;
-                  input.onchange = async () => {
-                    if (input.files?.length)
-                      await handleUpload(Array.from(input.files));
-                  };
-                  input.click();
-                }}
-              >
-                Browse Files
-              </Button>
+              <ClientOnly>
+                <Button
+                  variant="outline"
+                  size="lg"
+                  onClick={handleFileSelect}
+                >
+                  Browse Files
+                </Button>
+              </ClientOnly>
               <p className="text-xs text-neutral-500">
                 Supported formats: PNG, JPG, GIF
               </p>
@@ -104,6 +102,19 @@ export function UploadModal({
       </CardContent>
     </Card>
   );
+}
+
+// Moved to a separate function to keep DOM manipulation out of the render path
+function createAndClickFileInput(handleUpload: (files: File[]) => void) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = "image/*";
+  input.multiple = true;
+  input.onchange = async () => {
+    if (input.files?.length)
+      await handleUpload(Array.from(input.files));
+  };
+  input.click();
 }
 
 function CloudUploadIcon(props: React.SVGProps<SVGSVGElement>) {

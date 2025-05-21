@@ -2,6 +2,7 @@ import express from "express";
 import type { Request, Response } from "express";
 import { PaymentService } from "../services/payment";
 import { authMiddleware } from "../middleware";
+import { prismaClient } from "db";
 
 const router = express.Router();
 
