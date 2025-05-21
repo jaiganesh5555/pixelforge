@@ -1,4 +1,4 @@
-# 100xPhoto - AI Image Generation Platform
+# Pixelforge - AI Image Generation Platform
 
 100xPhoto is a powerful AI image platform that lets you generate stunning images and train custom AI models. Built with cutting-edge technology, it enables users to create unique AI-generated artwork and train personalized models on their own image datasets. Whether you're an artist looking to expand your creative possibilities or a developer building AI-powered image applications, 100xPhoto provides an intuitive interface and robust capabilities for AI image generation and model training.
 
